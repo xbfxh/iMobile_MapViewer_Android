@@ -70,7 +70,8 @@ public class DefaultDataConfig {
 	private void configLic()
 	{
 		InputStream is = MyAssetManager.getInstance().open(LicName);
-		FileManager.getInstance().copy(is, LicPath+LicName);
+		if(is!=null)
+		   FileManager.getInstance().copy(is, LicPath+LicName);
 	}
 
 	/**

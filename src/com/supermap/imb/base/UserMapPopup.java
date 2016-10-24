@@ -26,7 +26,6 @@ public class UserMapPopup extends PopupWindow implements OnClickListener{
 	private LayoutInflater mInflater = null;
 	
 	private DataManager mUserDataManager = null;
-	private Thread openMapThread = null;
 	private Workspace mWorkspace = null;
 	private MapControl   mMapControl     = null;
 	private View         mContentView    = null; 
@@ -120,14 +119,17 @@ public class UserMapPopup extends PopupWindow implements OnClickListener{
 				
 				@Override
 				public void onClick(View arg0) {
-					openMapThread = new Thread(new Runnable(){
-						@Override
-						public void run() {
-							mMapControl.getMap().open(name);
-							mMapControl.getMap().refresh();
-						}
-					});
-					openMapThread.start();
+
+					mMapControl.getMap().close();
+					mMapControl.getMap().open(name);
+					// 对长春市地图增加整屏刷新
+					if(name.equals("长春市区图")){
+						mMapControl.getMap().setFullScreenDrawModel(true);
+					}else{
+						mMapControl.getMap().setFullScreenDrawModel(false);
+					}
+					mMapControl.getMap().refresh();
+
 					int count = mListMaps.getChildCount();
 					for(int index=0; index<count; index++)
 						mListMaps.getChildAt(index).setEnabled(true);

@@ -11,6 +11,7 @@ import android.widget.RadioButton;
 import com.supermap.data.Dataset;
 import com.supermap.data.DatasetType;
 import com.supermap.imb.appconfig.DataManager;
+import com.supermap.imb.appconfig.DefaultDataConfig;
 import com.supermap.imb.appconfig.DefaultDataManager;
 import com.supermap.imb.appconfig.MyApplication;
 import com.supermap.mapping.MapControl;
@@ -82,9 +83,6 @@ public class MainActivity extends Activity implements OnClickListener{
 		
 		prepareData();
 		initUI();
-		mMyMapPopup          = new MyMapPopup(mMapControl);
-		mUserDatasourcePopup = new UserDatasourcePopup(mMapControl);
-		mUserWorkspacePopup  = new UserWorkspacePopup(mMapControl);
 	}
 	
 	/**
@@ -118,20 +116,36 @@ public class MainActivity extends Activity implements OnClickListener{
 			@Override
 			public void run() {
 				super.run();
+				//配置数据
+				new DefaultDataConfig().autoConfig();
 				mDefaultDataManager = MyApplication.getInstance().getDefaultDataManager();
 				mUserDataManager = MyApplication.getInstance().getUserDataManager();
 				mDefaultDataManager.open();
-				
+		    	progress.dismiss();
 				runOnUiThread(new Runnable() {
 					@Override
 					public void run() {
-						progress.dismiss();
+						
 						if(mDefaultDataManager.isDataOpen()){
 							mMapControl.getMap().setWorkspace(mDefaultDataManager.getWorkspace());
+							// 对长春市地图增加整屏刷新
+							if(mDefaultDataManager.getDisplayMapName().equals("长春市区图")){
+								mMapControl.getMap().setFullScreenDrawModel(true);
+							}else{
+								mMapControl.getMap().setFullScreenDrawModel(false);
+							}
+							//判断mapname是否为空
+							if(mDefaultDataManager.getDisplayMapName()== null){
+								return;
+							}
 							mMapControl.getMap().open(mDefaultDataManager.getDisplayMapName());
 						}else {
 							MyApplication.getInstance().ShowError("工作空间打开失败！");
 						}
+						mMyMapPopup          = new MyMapPopup(mMapControl);
+						mUserDatasourcePopup = new UserDatasourcePopup(mMapControl);
+						mUserWorkspacePopup  = new UserWorkspacePopup(mMapControl);
+						progress.dismiss();
 					}
 				});
 			}

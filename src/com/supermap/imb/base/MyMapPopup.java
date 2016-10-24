@@ -37,7 +37,7 @@ public class MyMapPopup extends PopupWindow implements OnClickListener{
 	private LayoutInflater mInflater = null;
 	private MapControl     mMapControl = null;
 	private Workspace mWorkspace = null;
-	private Thread openMapThread = null;
+
 	private DefaultDataManager mDefaultDataManager = null;
 	
 	/**
@@ -68,8 +68,6 @@ public class MyMapPopup extends PopupWindow implements OnClickListener{
 		initMapList();
 		mListMaps.setAdapter(new MapsAdapter());
 	}
-	
-	
 	@Override
 	public void onClick(View v) {
 		switch (v.getId()) {
@@ -108,7 +106,7 @@ public class MyMapPopup extends PopupWindow implements OnClickListener{
 		public View getView(int index, View convertView, ViewGroup arg2) {
 			ViewHolder holder = null;
 			if(convertView == null){
-				convertView = mInflater.inflate(R.layout.listview_map_item,	 null);
+				convertView = mInflater.inflate(R.layout.listview_map_item,	 null);			
 				holder = new ViewHolder();
 				holder.MapName = (TextView) convertView.findViewById(R.id.tv_map_name);
 				holder.MapType = (ImageView) convertView.findViewById(R.id.img_map_type);
@@ -131,19 +129,22 @@ public class MyMapPopup extends PopupWindow implements OnClickListener{
 						// 不存在指定的地图，就提示是否打开超图云服务地图
 						popOpenMapInfo(arg0);
 					}else {
-						// 恢复地图列表的默认背景色
 						
-						openMapThread = new Thread(new Runnable(){
-							@Override
-							public void run() {
+						// 恢复地图列表的默认背景色
+						mMapControl.getMap().close();
 						mMapControl.getMap().open(name);
+						// 对长春市地图增加整屏刷新
+						if(name.equals("长春市区图")){
+							mMapControl.getMap().setFullScreenDrawModel(true);
+						}else{
+							mMapControl.getMap().setFullScreenDrawModel(false);
+						}
 						mMapControl.getMap().refresh();
-							}
-						});
-						openMapThread.start();
-						mListMaps.getChildAt(indexOfMapList).setEnabled(true);
-						arg0.setEnabled(false);                           // 固定当前条目的背景色
-						indexOfMapList = mListMaps.indexOfChild(arg0);
+						
+//						mListMaps.getChildAt(indexOfMapList).setEnabled(true);
+//						arg0.setEnabled(false);                           // 固定当前条目的背景色
+//						indexOfMapList = mListMaps.indexOfChild(arg0);
+						
 					}
 				}
 			});
@@ -166,6 +167,9 @@ public class MyMapPopup extends PopupWindow implements OnClickListener{
 		mapList.add("DEM地图");
 		mapList.add("SCI地图");
 		mapList.add("CAD地图");
+		mapList.add("WMS地图");
+		mapList.add("Bing地图");
+		mapList.add("OpenStreetMap");
 		
 	}
 	
